@@ -1,0 +1,91 @@
+### 解题思路
+
+转换成list进行单个计算
+
+### 代码
+
+* java
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        List<Integer> list1 = new ArrayList();
+        
+        List<Integer> list2 = new ArrayList();
+
+        List<Integer> list3 = new ArrayList();
+
+        while(l1 != null) {
+            list1.add(l1.val);
+            l1 = l1.next;
+        }
+        
+        while(l2 != null) {
+            list2.add(l2.val);
+            l2 = l2.next;
+        }
+        
+        int count = 0;
+
+        int length1 = list1.size();
+        int length2 = list2.size();
+        int length = length1 > length2 ? length1 : length2;
+
+        int param1, param2, sum;
+
+        for(int i = 0; i < length; i++) {
+            if (i > length1 - 1) {
+                param2 = list2.get(i) + count;
+                if(param2 >= 10) {
+                    param2 = param2 - 10;
+                    count = 1;
+                } else {
+                    count = 0;
+                }
+                list3.add(param2);
+            }
+            else if (i > length2 - 1) {
+                param1 = list1.get(i) + count;
+                if(param1 >= 10) {
+                    param1 = param1 - 10;
+                    count = 1;
+                } else {
+                    count = 0;
+                }
+                list3.add(param1);
+            } else {
+                param1 = list1.get(i);
+                param2 = list2.get(i);
+                sum = param1 + param2 + count;
+                if(sum >= 10) {
+                    sum = sum - 10;
+                    count = 1;
+                } else {
+                    count = 0;
+                }
+                list3.add(sum);
+            }
+        }
+        if (count == 1) {
+            list3.add(count);
+        }
+
+        ListNode node = new ListNode(list3.get(list3.size() - 1));
+        for(int x = list3.size() - 1; x > 0; x--) {
+            node = new ListNode(list3.get(x - 1), node);
+        }
+        return node;
+    }
+}
+```
+

@@ -1,0 +1,32 @@
+### 解题思路
+
+先从数组中取出第一个字符串，截取一个公共前缀初始值，然后遍历数组，挨个对比数组中的每个字符和初始前缀中的字符，如果相同记下标，最后从初始公共前缀中截取到对应下标的字符就是我们想要获取到的公共前缀
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if (strs.length == 0) {
+            return "";
+        }
+        //公共前缀(初始值首位字符/flower)
+        String res = strs[0];
+        for (String str : strs) {
+            //用来记录公共前缀的下标
+            int j = 0;
+            //挨个对比
+            while (j < res.length() && j < str.length() && res.charAt(j) == str.charAt(j)) {
+                //记录公共前缀的索引下标
+                j++;
+            }
+            //从公共前缀初始值中截取到公共前缀
+            res = res.substring(0, j);
+        }
+        return res;
+    }
+}
+```
+

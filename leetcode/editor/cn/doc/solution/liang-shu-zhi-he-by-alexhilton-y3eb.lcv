@@ -1,0 +1,156 @@
+# 分析
+
+是整数，没说有序，也没有说全是正数，所以没有办法用双指针。结果没要求保证顺序，这是一个暗示。
+本身题目不难，但却是简单的题目，越容易陷入找特别高效的方法，但很不幸，没有能超过O(n)的方法。
+
+# 直观暴力搜索
+
+遍历数组，然后从余下的部分中寻找target - [i]，虽然是O(n^2)，但是直观，简单，容易理解。需要注意边界，主loop是从[0, n-1]，内部是从[i+1, n]。
+
+* 
+
+```
+    public int[] twoSum(int[] nums, int target) {
+        for (int i = 0; i < nums.length - 1; i++) {
+            for (int j = i + 1; j < nums.length; j++) {
+                if (nums[i] + nums[j] == target) {
+                    return new int[] {i, j};
+                }
+            }
+        }
+
+        return new int[] {};
+    }
+```
+
+# 二分大法
+
+这其实是一道搜索题，固定一个数后，就是如何找到另外一个数（target - [i]）。
+
+因为是数组，要利用随机访问的能力，因此内部loop可以用双指针从两头往中间找，这样可以节省一半的时间，整体时间复杂度会到O(nlogn)，仍要注意边界.
+
+* 
+
+```
+    public int[] twoSum(int[] nums, int target) {
+        int[] result = {0, 1};
+        if (nums.length <= 2) {
+            return result;
+        }
+
+        for (int i = 0; i < nums.length - 1; i++) {
+            result[0] = i;
+            int x = target - nums[i];
+            for (int j = i + 1, k = nums.length - 1; j <= k; j++, k--) {
+                if (nums[j] == x) {
+                    result[1] = j;
+                    return result;
+                }
+                if (nums[k] == x) {
+                    result[1] = k;
+                    return result;
+                }
+            }
+        }
+
+        return result;
+    }
+```
+
+# 四分大法
+
+其实主loop也可以采用二分法，用双指针从两头往中间遍历，这样又可以节省一半的时间。还可以做剪支，如果主loop的双指针之和恰好是target，那就直接返回，剪支在分析效率的时候可能帮助不大，但在真实的运行时，能大大提高效率。
+
+在不借助额外的数据结构的前提下，这是最优解，从运行结果来看，时间是0，严格来说是O(n/2logn)。
+
+* 
+
+```
+    public int[] twoSum(int[] nums, int target) {
+        int[] result = {0, 1};
+        if (nums.length <= 2) {
+            return result;
+        }
+
+        for (int i = 0, j = nums.length - 1; i < j; i++, j--) {
+            if (nums[i] + nums[j] == target) {
+                // Lucky
+                result[0] = i;
+                result[1] = j;
+                return result;
+            }
+
+            // should be in [i+1, j-1], find them with double pointers.
+            int x = target - nums[i];
+            int y = target - nums[j];
+            for (int k = i + 1, m = j - 1; k <= m; k++, m--) {
+                result[0] = i;
+                if (nums[k] == x) {
+                    result[1] = k;
+                    return result;
+                } else if (nums[m] == x) {
+                    result[1] = m;
+                    return result;
+                }
+
+                result[1] = j;
+                if (nums[k] == y) {
+                    result[0] = k;
+                    return result;
+                } else if (nums[m] == y) {
+                    result[0] = m;
+                    return result;
+                }
+            }
+        }
+
+        return result;
+    }
+```
+
+# 二分加Map
+
+其实一开始没想到用Map，因为以往做ACM的时候，一般来说不让直接使用标准库里的东西，这本是一个搜索，前面的四分法能满足要求，额外再实现一个Map，不太划算。
+
+注意，题目中说返回结果不要求有一定的顺序，这就暗示了，可以使用Map来做内层的搜索，外层仍要遍历，内层用Map来搜索，整体效率会达到O(n)。
+
+同时，受四分大法启发，外层主loop，其实仍可以用二分大法，这样时间复杂度又提高到O(n/2)。
+
+* 
+
+```
+    public int[] twoSum(int[] nums, int target) {
+        int[] result = {0, 1};
+        if (nums.length <= 2) {
+            return result;
+        }
+
+        Map<Integer, Integer> valueToIndex = new HashMap<>();
+        for (int i = 0, j = nums.length - 1; i <= j; i++, j--) {
+            if (nums[i] + nums[j] == target) {
+                // So lucky
+                result[0] = i;
+                result[1] = j;
+                break;
+            }
+            int x = target - nums[i];
+            if (valueToIndex.containsKey(x)) {
+                result[0] = i;
+                result[1] = valueToIndex.get(x);
+                break;
+            }
+            x = target - nums[j];
+            if (valueToIndex.containsKey(x)) {
+                result[0] = j;
+                result[1] = valueToIndex.get(x);
+                break;
+            }
+
+            valueToIndex.put(nums[i], i);
+            valueToIndex.put(nums[j], j);
+        }
+
+        return result;
+    }
+```
+
